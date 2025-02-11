@@ -49,13 +49,14 @@ int main(int argc, char **argv)
     //print the sorted array
     puts("printing the sorted array");
     random_array_instance->print_random_array(random_char_array);
-    random_array_instance->clean_up();
-
+ 
     //testing singleton (** currently crashing**)
     puts("testing singleton");
-    random_array_instance = new_irandom_array_factory(100);
+    random_array_instance = new_irandom_array_factory(size);
     puts("printing the random array");
     random_array_instance->print();
+
+    random_array_instance->clean_up();
 
     return 0;
 }

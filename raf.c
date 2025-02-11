@@ -17,7 +17,7 @@ typedef char bool;
     class that uses interface struct IRandomArray, plus a few of its own
     function pointers and the arrays needed.
 */
-struct RandomArray{
+typedef struct RandomArray{
     struct IRandomArray random_array_interface;
     bool (* value_already_inserted)(void * obj, char value_to_check);
     bool (* values_are_consecutive)(void * obj, char value, char value_being_compared_to);
@@ -33,13 +33,13 @@ struct RandomArray{
     bool * track_array;
     int * duplicate_select_array;
     short random_char_array_index;
-};
+} RandomArray_s;
 
 /*
     Variable to hold our struct RandomArray pointer so we always return
     the same one after the initial memory allocation.
 */
-static struct RandomArray * raf_random_array_singlton = NULL;
+static RandomArray_s * raf_random_array_singlton = NULL;
 
 //future define
 
@@ -72,7 +72,7 @@ Output: there is no return value.
 void print(void)
 {
     // get instance of ourselves
-    struct RandomArray random_array_instance = *raf_random_array_singlton;
+    RandomArray_s random_array_instance = *raf_random_array_singlton;
 
     random_array_instance.to_string(&random_array_instance);
 }
@@ -90,7 +90,7 @@ Output: there is no return value.
 void print_random_array(char * random_char_array)
 {
     // get instance of ourselves
-    struct RandomArray * random_array_instance = (struct RandomArray *) raf_random_array_singlton;
+    RandomArray_s * random_array_instance = (RandomArray_s *) raf_random_array_singlton;
 
     random_array_instance->print_array_to_format(random_char_array, random_array_instance->size);
 }
@@ -140,7 +140,7 @@ Output: a true or false is returned.
 bool value_already_inserted(void * obj, char value_to_check)
 {
     // get instance of ourselves
-    struct RandomArray * this = (struct RandomArray *) obj;
+    RandomArray_s * this = (RandomArray_s *) obj;
     return this->track_array[value_to_check];
 }
 
@@ -163,7 +163,7 @@ Output: a true or false is returned.
 bool values_are_consecutive(void * obj, char value, char value_being_compared_to)
 {
     // get instance of ourselves
-    struct RandomArray * this = (struct RandomArray *) obj;
+    RandomArray_s * this = (RandomArray_s *) obj;
 
     return (
         this->random_char_array_index
@@ -191,7 +191,7 @@ Output: there is no return value.
 void insert_value(void * obj, char value)
 {
     // get instance of ourselves
-    struct RandomArray * this = (struct RandomArray *) obj;
+    RandomArray_s * this = (RandomArray_s *) obj;
 
     this->random_char_array[this->random_char_array_index++] = value;
     this->track_array[value]++;
@@ -210,7 +210,7 @@ Output: there is no return value.
 void increment_duplicate_found(void * obj, char value)
 {
     // get instance of ourselves
-    struct RandomArray * this = (struct RandomArray *) obj;
+    RandomArray_s * this = (RandomArray_s *) obj;
 
     this->duplicate_select_array[value]++;
 }
@@ -256,7 +256,7 @@ Output: there is no return value.
 void to_string(void * obj)
 {
     // get instance of ourselves
-    struct RandomArray * this = (struct RandomArray *) obj;
+    RandomArray_s * this = (RandomArray_s *) obj;
     // get array to print
     char * random_char_array = {this->random_char_array};
 
@@ -298,12 +298,12 @@ Input:
 Output:
     NULL or a pointer to a struct RandomArray * object.
 */
-struct RandomArray * new_random_array_fatory(unsigned char size)
+RandomArray_s * new_random_array_fatory(unsigned char size)
 {
     if(NULL == raf_random_array_singlton)
     {
         //define and allocat the RandomArray structure
-        struct RandomArray * random_array = malloc(sizeof(struct RandomArray));
+        RandomArray_s * random_array = malloc(sizeof(RandomArray_s));
         
         //check that memory allocation did not fail
         if(NULL == random_array)
@@ -312,7 +312,7 @@ struct RandomArray * new_random_array_fatory(unsigned char size)
         }
         
         //allocate the random char array
-        random_array->random_char_array = malloc(sizeof(random_array->random_char_array) * size);
+        random_array->random_char_array = calloc(sizeof(random_array->random_char_array) * size, sizeof(random_array->random_char_array));
 
         if(NULL == random_array->random_char_array)
         {
@@ -320,7 +320,7 @@ struct RandomArray * new_random_array_fatory(unsigned char size)
             return NULL;
         }
         //allocate the random char array
-        random_array->track_array = malloc(sizeof(random_array->track_array) * size);
+        random_array->track_array = calloc(sizeof(random_array->track_array) * size, sizeof(random_array->track_array));
 
         if(NULL == random_array->track_array)
         {
@@ -329,7 +329,7 @@ struct RandomArray * new_random_array_fatory(unsigned char size)
         }
 
         //allocate the random char array
-        random_array->duplicate_select_array = malloc(sizeof(random_array->duplicate_select_array) * size);
+        random_array->duplicate_select_array = calloc(sizeof(random_array->duplicate_select_array) * size, sizeof(random_array->duplicate_select_array));
 
         if(NULL == random_array->duplicate_select_array)
         {
@@ -341,9 +341,9 @@ struct RandomArray * new_random_array_fatory(unsigned char size)
         random_array->random_char_array_index;
 
         // 0 out all the arraysthis
-        memset(random_array->random_char_array, 0, random_array->size * sizeof(random_array->random_char_array[0]));
-        memset(random_array->track_array, 0, random_array->size * sizeof(random_array->track_array[0]));
-        memset(random_array->duplicate_select_array, 0, random_array->size * sizeof(random_array->duplicate_select_array[0]));
+        //memset(random_array->random_char_array, 0, random_array->size * sizeof(random_array->random_char_array[0]));
+        //memset(random_array->track_array, 0, random_array->size * sizeof(random_array->track_array[0]));
+        //memset(random_array->duplicate_select_array, 0, random_array->size * sizeof(random_array->duplicate_select_array[0]));
 
         random_array->random_char_array_index = 0;
 
@@ -409,9 +409,9 @@ Input:
 Output:
     NULL or a pointer to a struct IRandomArray object.
 */
-struct IRandomArray * new_irandom_array_factory(unsigned char size)
+IRandomArray_s * new_irandom_array_factory(unsigned char size)
 {
-    struct RandomArray * random_array = new_random_array_fatory(size);
+    RandomArray_s * random_array = new_random_array_fatory(size);
 
-    return (struct IRandomArray *)random_array;
+    return (IRandomArray_s *)random_array;
 }
